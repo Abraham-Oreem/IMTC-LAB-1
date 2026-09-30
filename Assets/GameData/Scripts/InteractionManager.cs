@@ -92,7 +92,16 @@ public class InteractionManager : MonoBehaviour
             if (rb != null)
             {
                 gravityWhip.Grab(rb);
+
+                interactionCompleted = true;
+                HideRay();
             }
+        }
+
+        IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+        if (interactable != null)
+        {
+            interactable.Interact();
         }
     }
 

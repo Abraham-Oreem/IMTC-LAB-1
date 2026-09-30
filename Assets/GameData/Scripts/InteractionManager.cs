@@ -14,6 +14,10 @@ public class InteractionManager : MonoBehaviour
 
     [SerializeField] private GravityWhip gravityWhip;
 
+    [Header("Interaction UI")]
+    [SerializeField] private GameObject interactionCanvas;
+    [SerializeField] private Vector3 canvasOffset = new Vector3(0f, 0.5f, 0f);
+
     private bool interactionCompleted;
 
     private void Update()
@@ -46,17 +50,37 @@ public class InteractionManager : MonoBehaviour
             return;
 
         Vector3 start = rightController.position;
-        Vector3 end =
-            start + (-rightController.forward) * interactionDistance;
+        Vector3 direction = -rightController.forward;
+
+        Vector3 end = start + direction * interactionDistance;
 
         if (Physics.Raycast(
             start,
-            -rightController.forward,
+            direction,
             out RaycastHit hit,
             interactionDistance,
             interactionLayers))
         {
             end = hit.point;
+
+            IGravityWhippable whippable =
+                hit.collider.GetComponent<IGravityWhippable>();
+
+            IInteractable interactable =
+                hit.collider.GetComponent<IInteractable>();
+
+            if (whippable != null || interactable != null)
+            {
+                ShowInteractionCanvas(hit);
+            }
+            else
+            {
+                HideInteractionCanvas();
+            }
+        }
+        else
+        {
+            HideInteractionCanvas();
         }
 
         interactionLine.positionCount = 2;
@@ -64,6 +88,31 @@ public class InteractionManager : MonoBehaviour
         interactionLine.SetPosition(1, end);
 
         interactionLine.enabled = true;
+    }
+
+    private void ShowInteractionCanvas(RaycastHit hit)
+    {
+        if (interactionCanvas == null)
+            return;
+
+        interactionCanvas.SetActive(true);
+
+        interactionCanvas.transform.position =
+            hit.collider.bounds.center + canvasOffset;
+
+        Transform cameraTransform = Camera.main.transform;
+
+        interactionCanvas.transform.LookAt(cameraTransform);
+
+        interactionCanvas.transform.Rotate(0f, 180f, 0f);
+    }
+
+    private void HideInteractionCanvas()
+    {
+        if (interactionCanvas == null)
+            return;
+
+        interactionCanvas.SetActive(false);
     }
 
     private void TryInteract()
@@ -101,7 +150,8 @@ public class InteractionManager : MonoBehaviour
         IInteractable interactable = hit.collider.GetComponent<IInteractable>();
         if (interactable != null)
         {
-            interactable.Interact();
+            interactionCompleted = interactable.Interact();
+            if (interactionCompleted) HideRay();
         }
     }
 
@@ -111,5 +161,7 @@ public class InteractionManager : MonoBehaviour
         {
             interactionLine.enabled = false;
         }
+
+        HideInteractionCanvas();
     }
 }

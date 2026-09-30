@@ -16,6 +16,6 @@ public class RotationEffect : MonoBehaviour, IInteractable
             )
             .SetEase(Ease.OutBack);
 
-        return true;
+        return false;
     }
 }

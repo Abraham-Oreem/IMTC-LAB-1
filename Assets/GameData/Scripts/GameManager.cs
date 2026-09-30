@@ -52,10 +52,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        TestControllerInputs();
-    }
+    // void Update()
+    // {
+    //     TestControllerInputs();
+    // }
 
     private void TestControllerInputs()
     {

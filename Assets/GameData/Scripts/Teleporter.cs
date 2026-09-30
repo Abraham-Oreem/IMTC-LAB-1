@@ -20,6 +20,7 @@ public class Teleporter : MonoBehaviour
     [SerializeField] private float timeStep = 0.04f;
 
     [SerializeField] private LayerMask teleportLayers = ~0;
+    [SerializeField] private LayerMask blockingLayers = ~0;
 
     [Range(0f, 1f)]
     [SerializeField] private float minFlatness = 0.7f;
@@ -81,10 +82,12 @@ public class Teleporter : MonoBehaviour
             velocity += Vector3.down * gravity * timeStep;
 
             if (Physics.Linecast(position, nextPosition, out RaycastHit hit,
-                                 teleportLayers, QueryTriggerInteraction.Ignore))
+                     blockingLayers, QueryTriggerInteraction.Ignore))
             {
                 arcPoints.Add(hit.point);
-                hasValidTarget = hit.normal.y >= minFlatness;
+                bool isFlat = hit.normal.y >= minFlatness;
+                bool isTeleportLayer = (teleportLayers.value & (1 << hit.collider.gameObject.layer)) != 0;
+                hasValidTarget = isFlat && isTeleportLayer;
                 targetPoint = hit.point;
                 break;
             }

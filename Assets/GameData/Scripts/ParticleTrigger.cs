@@ -3,6 +3,7 @@ using UnityEngine;
 public class ParticleTrigger : MonoBehaviour
 {
     [SerializeField] private ParticleSystem particle;
+    [SerializeField] private AudioSource audioSource;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -12,6 +13,7 @@ public class ParticleTrigger : MonoBehaviour
         if (whippable != null)
         {
             particle.Play();
+            audioSource.Play();
         }
     }
 }
